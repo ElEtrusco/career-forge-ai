@@ -1,27 +1,33 @@
 from fastapi import FastAPI
 
+from app.api.router import router
 from app.core.config import settings
 from app.core.logger import logger
+from app.database.init_db import create_database
 
 app = FastAPI(
     title=settings.APP_NAME,
     version="1.0.0",
-    description="AI Job Search Assistant"
+    description="Career Forge AI"
 )
 
 
 @app.on_event("startup")
 def startup():
 
-    logger.info("Career Forge AI iniciado")
+    logger.info("Iniciando Career Forge AI")
+
+    create_database()
+
+
+app.include_router(router)
 
 
 @app.get("/")
 def root():
 
     return {
-        "name": settings.APP_NAME,
-        "version": settings.API_VERSION,
+        "application": settings.APP_NAME,
         "status": "running"
     }
 
