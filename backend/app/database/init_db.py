@@ -1,7 +1,7 @@
 from app.database.session import Base, engine
 
-# IMPORTAR TODOS LOS MODELOS AQUÍ (IMPORT CRÍTICO)
-from app.models.user import User
+# IMPORTANTE: asegurar que modelos se registran
+from app.models.user import User  # noqa
 
 
 def create_database():
