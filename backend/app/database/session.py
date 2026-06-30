@@ -4,6 +4,11 @@ from sqlalchemy.orm import sessionmaker, DeclarativeBase
 from app.core.config import settings
 
 
+# 🔴 BASE DE SQLALCHEMY (AQUÍ VA LO QUE PREGUNTAS)
+class Base(DeclarativeBase):
+    pass
+
+
 engine = create_engine(
     settings.DATABASE_URL,
     echo=settings.DEBUG,
@@ -15,10 +20,6 @@ SessionLocal = sessionmaker(
     autoflush=False,
     autocommit=False,
 )
-
-
-class Base(DeclarativeBase):
-    pass
 
 
 def get_db():
