@@ -1,6 +1,6 @@
 from app.database.session import Base, engine
 
-# Importar modelos
+# IMPORTAR TODOS LOS MODELOS AQUÍ (IMPORT CRÍTICO)
 from app.models.user import User
 
 
