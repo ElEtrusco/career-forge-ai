@@ -4,22 +4,17 @@ from sqlalchemy.orm import sessionmaker, DeclarativeBase
 from app.core.config import settings
 
 
-# 🔴 BASE DE SQLALCHEMY (AQUÍ VA LO QUE PREGUNTAS)
 class Base(DeclarativeBase):
     pass
 
 
 engine = create_engine(
     settings.DATABASE_URL,
-    echo=settings.DEBUG,
+    echo=True,
     future=True,
 )
 
-SessionLocal = sessionmaker(
-    bind=engine,
-    autoflush=False,
-    autocommit=False,
-)
+SessionLocal = sessionmaker(bind=engine)
 
 
 def get_db():
