@@ -7,17 +7,19 @@ from app.database.init_db import create_database
 
 app = FastAPI(
     title=settings.APP_NAME,
-    version="1.0.0",
-    description="Career Forge AI"
+    version="1.0.0"
 )
 
 
 @app.on_event("startup")
-def startup():
-
+def startup_event():
     logger.info("Iniciando Career Forge AI")
 
-    create_database()
+    try:
+        create_database()
+        logger.info("Base de datos creada correctamente")
+    except Exception as e:
+        logger.error(f"Error creando BD: {e}")
 
 
 app.include_router(router)
@@ -25,16 +27,9 @@ app.include_router(router)
 
 @app.get("/")
 def root():
-
-    return {
-        "application": settings.APP_NAME,
-        "status": "running"
-    }
+    return {"status": "ok"}
 
 
 @app.get("/health")
 def health():
-
-    return {
-        "status": "ok"
-    }
+    return {"status": "healthy"}
