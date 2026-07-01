@@ -1,7 +1,9 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi import APIRouter, UploadFile, File, Form, HTTPException
 from app.services.cv_analyzer import CVAnalyzer
 import pdfplumber
 import io
+from app.services.job_matcher import JobMatcher
+
 
 router = APIRouter()
 
@@ -73,3 +75,24 @@ async def upload_cv(file: UploadFile = File(...)):
             status_code=500,
             detail=f"Unexpected error: {str(e)}"
         )
+
+@router.post("/cv/match")
+async def match_cv(
+    file: UploadFile = File(...),
+    job_text: str = ""
+):
+
+    file_bytes = await file.read()
+    extracted_text = extract_text_from_pdf(file_bytes)
+
+    analysis = analyzer.analyze(extracted_text)
+
+    result = analyzer.match_with_job(
+        cv_skills=analysis["skills"],
+        job_text=job_text
+    )
+
+    return {
+        "analysis": analysis,
+        "match": result
+    }

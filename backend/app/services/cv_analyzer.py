@@ -4,7 +4,6 @@ from app.services.ats_scorer_v2 import ATSScorerV2
 from app.services.cv_improver import CVImprover
 from app.services.job_matcher import JobMatcher
 
-
 class CVAnalyzer:
 
     def __init__(self):
@@ -12,23 +11,14 @@ class CVAnalyzer:
         self.role_recommender = RoleRecommender()
         self.ats_scorer = ATSScorerV2()
         self.cv_improver = CVImprover()
+        self.job_matcher = JobMatcher()
 
     def analyze(self, text: str):
-
-        # 1. Improve CV (preprocessing step)
         improved_text = self.cv_improver.improve(text)
 
-        # 2. Extract skills from improved CV
         skills = self.skill_extractor.extract_all(improved_text)
-
-        # 3. Recommend roles based on skills
         roles = self.role_recommender.recommend_roles(skills)
-
-        # 4. ATS score v2 (recruiter-level heuristic)
         ats_score = self.ats_scorer.calculate(skills, improved_text)
-
-        # 5. Summary generation
-        summary = self._generate_summary(skills, roles, ats_score)
 
         return {
             "original_text": text,
@@ -36,7 +26,7 @@ class CVAnalyzer:
             "skills": skills,
             "recommended_roles": roles,
             "ats_score": ats_score,
-            "summary": summary
+            "summary": self._generate_summary(skills, roles, ats_score)
         }
 
     def _generate_summary(self, skills: dict, roles: list, ats_score: int) -> str:
@@ -51,3 +41,12 @@ class CVAnalyzer:
             f"and {len(skills.get('languages', []))} languages. "
             f"Top recommended roles: {role_text}."
         )
+
+    def match_with_job(self, cv_skills: dict, job_text: str):
+
+        match_result = self.job_matcher.match(
+            cv_skills=cv_skills,
+            job_text=job_text
+        )
+
+        return match_result
