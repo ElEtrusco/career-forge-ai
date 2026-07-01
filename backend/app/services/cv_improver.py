@@ -4,38 +4,23 @@ import re
 class CVImprover:
 
     def improve(self, text: str) -> str:
+        """
+        Limpieza del CV para mejorar la extracción ATS sin alterar
+        el contenido original.
+        """
 
         improved = text
 
-        # -------------------------
-        # 1. Normalize weak verbs
-        # -------------------------
-        replacements = {
-            "worked on": "developed",
-            "helped with": "contributed to",
-            "responsible for": "led",
-            "did": "implemented",
-        }
+        # Eliminar caracteres nulos típicos de algunos PDF
+        improved = improved.replace("\x00", "")
 
-        for k, v in replacements.items():
-            improved = re.sub(k, v, improved, flags=re.IGNORECASE)
+        # Normalizar espacios
+        improved = re.sub(r"[ \t]+", " ", improved)
 
-        # -------------------------
-        # 2. Add implicit impact phrasing
-        # -------------------------
-        improved = re.sub(
-            r"(developed|built|created)",
-            r"\1 scalable and optimized",
-            improved,
-            flags=re.IGNORECASE
-        )
+        # Máximo dos saltos de línea consecutivos
+        improved = re.sub(r"\n{3,}", "\n\n", improved)
 
-        # -------------------------
-        # 3. Basic ATS keyword boost (light touch)
-        # -------------------------
-        keywords = "optimized for scalability, performance, and maintainability"
-
-        if "fastapi" in improved.lower():
-            improved += f"\n\nExperience includes {keywords} using FastAPI architecture."
+        # Eliminar espacios al principio y final
+        improved = improved.strip()
 
         return improved

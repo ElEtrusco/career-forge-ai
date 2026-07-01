@@ -7,7 +7,7 @@ class SkillExtractor:
     def __init__(self):
 
         # -------------------------
-        # HARD SKILLS
+        # HARD SKILLS (tecnologías reales)
         # -------------------------
         self.hard_skills = set([
             "python", "java", "javascript", "typescript",
@@ -21,22 +21,28 @@ class SkillExtractor:
             "html", "css",
             "rest api", "api", "microservices",
             "machine learning", "deep learning",
-            "pandas", "numpy"
+            "pandas", "numpy",
+            "sql"
         ])
 
         # -------------------------
-        # SOFT SKILLS
+        # SOFT SKILLS (reales, no técnicas)
         # -------------------------
         self.soft_skills = set([
-            "teamwork", "leadership",
-            "communication", "problem solving",
-            "adaptability", "critical thinking",
-            "time management", "creativity",
-            "collaboration"
+            "teamwork",
+            "leadership",
+            "communication",
+            "problem solving",
+            "adaptability",
+            "critical thinking",
+            "time management",
+            "creativity",
+            "collaboration",
+            "organization"
         ])
 
         # -------------------------
-        # ES → EN MAPPING (CLAVE)
+        # ES → EN (SOLO SOFT SKILLS)
         # -------------------------
         self.es_en_map = {
             "trabajo en equipo": "teamwork",
@@ -47,8 +53,19 @@ class SkillExtractor:
             "pensamiento crítico": "critical thinking",
             "gestión del tiempo": "time management",
             "creatividad": "creativity",
-            "programación": "python",
-            "bases de datos": "mysql"
+            "organización": "organization"
+        }
+
+        # -------------------------
+        # CONCEPTOS → HARD SKILLS (IMPORTANTE)
+        # -------------------------
+        self.concept_map = {
+            "programación": ["python", "javascript"],
+            "desarrollo web": ["html", "css", "javascript"],
+            "bases de datos": ["sql", "mysql", "postgresql"],
+            "backend": ["python", "fastapi", "django"],
+            "frontend": ["html", "css", "javascript", "react"],
+            "cloud": ["aws", "azure", "gcp"]
         }
 
         # -------------------------
@@ -63,6 +80,9 @@ class SkillExtractor:
             "portuguese": ["portuguese", "portugués", "portugues"]
         }
 
+    # -------------------------
+    # NORMALIZATION
+    # -------------------------
     def normalize_text(self, text: str) -> str:
         return text.lower()
 
@@ -73,27 +93,33 @@ class SkillExtractor:
 
         found = set()
 
+        # direct skills
         for skill in self.hard_skills:
             pattern = r"\b" + re.escape(skill) + r"\b"
             if re.search(pattern, text):
                 found.add(skill)
 
+        # concept expansion
+        for concept, skills in self.concept_map.items():
+            if concept in text:
+                found.update(skills)
+
         return list(found)
 
     # -------------------------
-    # SOFT SKILLS + ES MAPPING
+    # SOFT SKILLS
     # -------------------------
     def extract_soft_skills(self, text: str) -> List[str]:
 
         found = set()
 
-        # direct soft skills
+        # direct match
         for skill in self.soft_skills:
             pattern = r"\b" + re.escape(skill) + r"\b"
             if re.search(pattern, text):
                 found.add(skill)
 
-        # ES → EN mapping
+        # ES → EN mapping (SOLO soft skills)
         for es_term, en_term in self.es_en_map.items():
             if es_term in text:
                 found.add(en_term)
@@ -101,7 +127,7 @@ class SkillExtractor:
         return list(found)
 
     # -------------------------
-    # LANGUAGES (SMART DETECTION)
+    # LANGUAGES
     # -------------------------
     def extract_languages(self, text: str) -> List[str]:
 
@@ -112,16 +138,17 @@ class SkillExtractor:
                 if v in text:
                     found.add(lang)
 
-        # detect levels (B1, B2, C1, etc.)
+        # niveles tipo B1, B2, etc.
         if re.search(r"\benglish\s*(a1|a2|b1|b2|c1|c2)\b", text):
             found.add("english")
+
         if re.search(r"\bfranc[eé]s\s*(a1|a2|b1|b2|c1|c2)\b", text):
             found.add("french")
 
         return list(found)
 
     # -------------------------
-    # MAIN FUNCTION
+    # MAIN
     # -------------------------
     def extract_all(self, text: str) -> Dict:
 
