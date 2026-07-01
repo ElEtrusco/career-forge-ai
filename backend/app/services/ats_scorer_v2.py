@@ -9,59 +9,119 @@ class ATSScorerV2:
         text_lower = text.lower()
         score = 0
 
-        # -------------------------
-        # 1. SKILL DENSITY (30 pts)
-        # -------------------------
         hard = len(skills.get("hard_skills", []))
         soft = len(skills.get("soft_skills", []))
-        lang = len(skills.get("languages", []))
+        languages = len(skills.get("languages", []))
 
-        score += min(hard * 5, 20)
-        score += min(soft * 2, 6)
-        score += min(lang * 2, 4)
+        # --------------------------------------------------
+        # 1. HARD SKILLS (30 puntos)
+        # --------------------------------------------------
+        score += min(hard * 4, 30)
 
-        # -------------------------
-        # 2. CV STRUCTURE (25 pts)
-        # -------------------------
-        sections = ["experience", "education", "skills", "projects", "work"]
+        # --------------------------------------------------
+        # 2. SOFT SKILLS (10 puntos)
+        # --------------------------------------------------
+        score += min(soft * 2, 10)
 
-        structure_score = sum(1 for s in sections if s in text_lower)
-        score += structure_score * 5
+        # --------------------------------------------------
+        # 3. IDIOMAS (10 puntos)
+        # --------------------------------------------------
+        score += min(languages * 3, 10)
 
-        # -------------------------
-        # 3. IMPACT / NUMBERS (15 pts)
-        # -------------------------
-        numbers = len(re.findall(r"\d+", text_lower))
-        score += min(numbers * 1, 15)
-
-        # -------------------------
-        # 4. ACTION VERBS (15 pts)
-        # -------------------------
-        verbs = [
-            "developed", "built", "led", "designed",
-            "created", "implemented", "optimized"
+        # --------------------------------------------------
+        # 4. ESTRUCTURA DEL CV (20 puntos)
+        # Compatible ES / EN
+        # --------------------------------------------------
+        sections = [
+            ["experience", "experiencia"],
+            ["education", "formación", "formacion"],
+            ["skills", "competencias"],
+            ["projects", "proyectos"],
+            ["languages", "idiomas"]
         ]
 
-        verb_score = sum(1 for v in verbs if v in text_lower)
-        score += verb_score * 3
+        structure_score = 0
 
-        # -------------------------
-        # 5. PENALTIES (15 pts)
-        # -------------------------
-        penalty = 0
+        for variants in sections:
+            if any(v in text_lower for v in variants):
+                structure_score += 4
 
-        if len(text_lower) < 1000:
-            penalty += 5
+        score += structure_score
 
-        if "experience" not in text_lower:
-            penalty += 5
+        # --------------------------------------------------
+        # 5. NÚMEROS / MÉTRICAS (10 puntos)
+        # --------------------------------------------------
+        numbers = len(re.findall(r"\d+", text_lower))
+        score += min(numbers, 10)
 
-        if hard == 0:
-            penalty += 5
+        # --------------------------------------------------
+        # 6. VERBOS DE ACCIÓN ES / EN (20 puntos)
+        # --------------------------------------------------
+        action_verbs = [
 
-        score -= penalty
+            # Inglés
+            "developed",
+            "built",
+            "created",
+            "implemented",
+            "optimized",
+            "designed",
+            "led",
+            "managed",
+            "improved",
+            "automated",
 
-        # -------------------------
-        # FINAL CAP
-        # -------------------------
-        return max(0, min(score, 100))
+            # Español
+            "desarrolló",
+            "desarrollado",
+            "implementó",
+            "implementado",
+            "gestionó",
+            "gestionado",
+            "lideró",
+            "creó",
+            "creado",
+            "optimizó",
+            "optimizó",
+            "analizó",
+            "diseñó",
+            "mantuvo",
+            "coordinó"
+        ]
+
+        verbs_found = 0
+
+        for verb in action_verbs:
+            if verb in text_lower:
+                verbs_found += 1
+
+        score += min(verbs_found * 2, 20)
+
+        # --------------------------------------------------
+        # 7. PENALIZACIONES
+        # --------------------------------------------------
+        penalties = 0
+
+        if len(text_lower) < 800:
+            penalties += 5
+
+        if hard < 3:
+            penalties += 5
+
+        if not any(
+            section in text_lower
+            for section in [
+                "experience",
+                "experiencia"
+            ]
+        ):
+            penalties += 5
+
+        score -= penalties
+
+        # --------------------------------------------------
+        # SCORE FINAL
+        # --------------------------------------------------
+        score = max(0, min(int(round(score)), 100))
+
+        return score
