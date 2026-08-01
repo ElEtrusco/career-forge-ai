@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from app.models.user import User
 from app.schemas.user import UserCreate
 from app.core.security import hash_password
+from app.core.security import verify_password
 
 
 class UserService:
@@ -39,5 +40,28 @@ class UserService:
         db.add(user)
         db.commit()
         db.refresh(user)
+
+        return user
+    
+
+    @staticmethod
+    def authenticate_user(
+        db: Session,
+        email: str,
+        password: str
+    ):
+        user = UserService.get_by_email(
+            db,
+            email
+        )
+
+        if not user:
+            return None
+
+        if not verify_password(
+            password,
+            user.hashed_password
+        ):
+            return None
 
         return user
