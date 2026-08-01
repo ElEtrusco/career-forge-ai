@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, ConfigDict
 
 
 class UserCreate(BaseModel):
@@ -14,13 +14,13 @@ class UserResponse(BaseModel):
     is_active: bool
     is_admin: bool
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
+
 
 class Token(BaseModel):
     access_token: str
