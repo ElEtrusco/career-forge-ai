@@ -74,3 +74,9 @@ def login(
         "access_token": access_token,
         "token_type": "bearer",
     }
+
+@router.get("/me")
+def me(
+    current_user: User = Depends(get_current_user),
+):
+    return current_user
