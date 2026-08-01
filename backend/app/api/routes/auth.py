@@ -47,19 +47,20 @@ def register(
 
     return user
 
+
 @router.post(
     "/login",
     response_model=Token
 )
 def login(
-    credentials: UserLogin,
+    form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db)
 ):
 
     user = UserService.authenticate_user(
         db,
-        credentials.email,
-        credentials.password,
+        form_data.username,
+        form_data.password,
     )
 
     if not user:
@@ -78,6 +79,7 @@ def login(
         "access_token": access_token,
         "token_type": "bearer",
     }
+
 
 @router.get("/me")
 def me(
