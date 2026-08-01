@@ -7,7 +7,7 @@ from sqlalchemy.orm import mapped_column
 
 class TimestampMixin:
     """
-    Añade fechas de creación y modificación.
+    Añade fechas automáticas.
     """
 
     created_at: Mapped[datetime] = mapped_column(
@@ -20,5 +20,16 @@ class TimestampMixin:
         DateTime(timezone=True),
         default=lambda: datetime.now(timezone.utc),
         onupdate=lambda: datetime.now(timezone.utc),
+        nullable=False,
+    )
+
+
+class ActiveMixin:
+    """
+    Añade estado activo/inactivo.
+    """
+
+    is_active: Mapped[bool] = mapped_column(
+        default=True,
         nullable=False,
     )
