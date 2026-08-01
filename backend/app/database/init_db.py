@@ -1,10 +1,12 @@
-from app.database.session import Base, engine
+from app.database.base import Base
+from app.database.session import engine
 
-# IMPORTANTE: forzar carga de modelos
-from app.models.user import User  # noqa
+import app.models  # noqa
 
 
 def create_database():
     print(">>> CREANDO TABLAS EN BD")
+
     Base.metadata.create_all(bind=engine)
+
     print(">>> TABLAS CREADAS")
