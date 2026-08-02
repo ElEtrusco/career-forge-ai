@@ -27,18 +27,22 @@ class OllamaProvider(LLMService):
                 "temperature": temperature,
                 "num_ctx": 1024,
                 "num_predict": max_tokens,
-            }
+            },
         }
+
 
         async with httpx.AsyncClient(timeout=120) as client:
 
             response = await client.post(
                 self.url,
-                json=payload
+                json=payload,
             )
+
+            print("OLLAMA STATUS:", response.status_code)
+            print("OLLAMA RESPONSE:", response.text)
 
             response.raise_for_status()
 
-            data = response.json()
+            result = response.json()
 
-            return data["message"]["content"]
+            return result["message"]["content"]
