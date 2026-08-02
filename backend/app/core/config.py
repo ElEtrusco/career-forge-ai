@@ -33,7 +33,7 @@ class Settings(BaseSettings):
 
 
     # --------------------------------------------------
-    # IA - Proveedor activo
+    # Proveedor IA activo
     # --------------------------------------------------
 
     LLM_PROVIDER: str = "ollama"
@@ -105,7 +105,7 @@ class Settings(BaseSettings):
 
 
     # --------------------------------------------------
-    # Pydantic
+    # Configuración Pydantic
     # --------------------------------------------------
 
     model_config = SettingsConfigDict(
@@ -115,14 +115,13 @@ class Settings(BaseSettings):
     )
 
 
-
 @lru_cache
 def get_settings() -> Settings:
     """
     Devuelve una única instancia de configuración.
     """
-    return Settings()
 
+    return Settings()
 
 
 settings = get_settings()
