@@ -28,12 +28,48 @@ class Settings(BaseSettings):
     DATABASE_URL: str = Field(...)
 
     # --------------------------------------------------
+    # IA - Proveedor activo
+    # --------------------------------------------------
+
+    LLM_PROVIDER: str = "openai"
+
+    # --------------------------------------------------
     # OpenAI
     # --------------------------------------------------
 
-    OPENAI_API_KEY: str = Field(...)
+    OPENAI_API_KEY: str = Field(default="")
 
-    MODEL: str = "gpt-5.5"
+    OPENAI_MODEL: str = "gpt-5.5"
+
+    # --------------------------------------------------
+    # Ollama
+    # --------------------------------------------------
+
+    OLLAMA_URL: str = "http://localhost:11434"
+
+    OLLAMA_MODEL: str = "llama3.1:8b"
+
+    # --------------------------------------------------
+    # Google Gemini
+    # --------------------------------------------------
+
+    GEMINI_API_KEY: str = Field(default="")
+
+    GEMINI_MODEL: str = "gemini-2.5-pro"
+
+    # --------------------------------------------------
+    # Anthropic Claude
+    # --------------------------------------------------
+
+    ANTHROPIC_API_KEY: str = Field(default="")
+
+    CLAUDE_MODEL: str = "claude-sonnet-4"
+
+    # --------------------------------------------------
+    # Embeddings
+    # --------------------------------------------------
+
+    EMBEDDING_MODEL: str = "text-embedding-3-large"
 
     # --------------------------------------------------
     # Seguridad
@@ -50,12 +86,6 @@ class Settings(BaseSettings):
     # --------------------------------------------------
 
     LOG_LEVEL: str = "INFO"
-
-    # --------------------------------------------------
-    # Futuro (RAG / Embeddings)
-    # --------------------------------------------------
-
-    EMBEDDING_MODEL: str = "text-embedding-3-large"
 
     # --------------------------------------------------
     # Configuración de Pydantic
@@ -78,35 +108,3 @@ def get_settings() -> Settings:
 
 
 settings = get_settings()
-
-"""from pydantic_settings import BaseSettings, SettingsConfigDict
-
-
-class Settings(BaseSettings):
-    APP_NAME: str = "Career Forge AI"
-    API_VERSION: str = "v1"
-
-    DEBUG: bool = True
-
-    HOST: str = "0.0.0.0"
-    PORT: int = 8000
-
-    DATABASE_URL: str
-
-    OPENAI_API_KEY: str
-
-    MODEL: str = "gpt-5.5"
-
-    SECRET_KEY: str
-
-    ALGORITHM: str = "HS256"
-
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
-
-    model_config = SettingsConfigDict(
-        env_file=".env",
-        extra="ignore"
-    )
-
-
-settings = Settings()"""
