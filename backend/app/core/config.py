@@ -15,10 +15,13 @@ class Settings(BaseSettings):
     # --------------------------------------------------
 
     APP_NAME: str = "Career Forge AI"
+
     API_VERSION: str = "v1"
+
     DEBUG: bool = False
 
     HOST: str = "0.0.0.0"
+
     PORT: int = 8000
 
 
@@ -52,6 +55,10 @@ class Settings(BaseSettings):
     OLLAMA_URL: str = "http://localhost:11434"
 
     OLLAMA_MODEL: str = "llama3.2:3b"
+
+    OLLAMA_CONTEXT_SIZE: int = 1024
+
+    OLLAMA_TIMEOUT: int = 120
 
 
     # --------------------------------------------------
@@ -97,6 +104,10 @@ class Settings(BaseSettings):
     LOG_LEVEL: str = "INFO"
 
 
+    # --------------------------------------------------
+    # Pydantic
+    # --------------------------------------------------
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
@@ -104,9 +115,14 @@ class Settings(BaseSettings):
     )
 
 
+
 @lru_cache
 def get_settings() -> Settings:
+    """
+    Devuelve una única instancia de configuración.
+    """
     return Settings()
+
 
 
 settings = get_settings()

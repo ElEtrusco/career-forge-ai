@@ -5,6 +5,9 @@ from app.llm.base import LLMService, Message
 
 
 class OllamaProvider(LLMService):
+    """
+    Proveedor LLM usando Ollama local.
+    """
 
     async def chat(
         self,
@@ -15,36 +18,52 @@ class OllamaProvider(LLMService):
 
         payload = {
             "model": settings.OLLAMA_MODEL,
+
             "messages": messages,
+
             "stream": False,
+
             "options": {
                 "temperature": temperature,
-                "num_ctx": 1024,
+
+                "num_ctx": settings.OLLAMA_CONTEXT_SIZE,
+
                 "num_predict": max_tokens,
             },
         }
 
+
         url = f"{settings.OLLAMA_URL}/api/chat"
 
+
+        print("--------------------------------")
         print("OLLAMA URL:", url)
         print("OLLAMA MODEL:", settings.OLLAMA_MODEL)
         print("OLLAMA PAYLOAD:", payload)
+        print("--------------------------------")
+
 
         async with httpx.AsyncClient() as client:
 
             response = await client.post(
                 url,
                 json=payload,
-                timeout=120,
+                timeout=settings.OLLAMA_TIMEOUT,
             )
+
 
             print("OLLAMA STATUS:", response.status_code)
 
-            if response.status_code != 200:
-                print("OLLAMA ERROR:", response.text)
+            print(
+                "OLLAMA RESPONSE:",
+                response.text[:500]
+            )
+
 
             response.raise_for_status()
 
+
             data = response.json()
+
 
             return data["message"]["content"]
