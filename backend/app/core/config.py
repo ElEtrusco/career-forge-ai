@@ -47,7 +47,7 @@ class Settings(BaseSettings):
 
     OLLAMA_URL: str = "http://localhost:11434"
 
-    OLLAMA_MODEL: str = "llama3.1:8b"
+    OLLAMA_MODEL: str = "llama3.2:3b"
 
     # --------------------------------------------------
     # Google Gemini

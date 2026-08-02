@@ -1,16 +1,10 @@
 import httpx
 
-from app.llm.base import LLMService, Message
 from app.core.config import settings
+from app.llm.base import LLMService, Message
 
 
 class OllamaProvider(LLMService):
-
-    def __init__(self):
-
-        self.url = "http://localhost:11434/api/chat"
-        self.model = settings.OPENAI_MODEL
-
 
     async def chat(
         self,
@@ -20,7 +14,7 @@ class OllamaProvider(LLMService):
     ) -> str:
 
         payload = {
-            "model": self.model,
+            "model": settings.LLM_MODEL,
             "messages": messages,
             "stream": False,
             "options": {
@@ -30,22 +24,16 @@ class OllamaProvider(LLMService):
             },
         }
 
-
-        async with httpx.AsyncClient(timeout=120) as client:
-            print("URL:", self.url)
-            print("MODEL:", self.model)
-            print("PAYLOAD:", payload)
+        async with httpx.AsyncClient() as client:
 
             response = await client.post(
-                self.url,
+                "http://localhost:11434/api/chat",
                 json=payload,
+                timeout=120,
             )
-
-            print("OLLAMA STATUS:", response.status_code)
-            print("OLLAMA RESPONSE:", response.text)
 
             response.raise_for_status()
 
-            result = response.json()
+            data = response.json()
 
-            return result["message"]["content"]
+            return data["message"]["content"]
