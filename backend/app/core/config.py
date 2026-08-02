@@ -21,17 +21,20 @@ class Settings(BaseSettings):
     HOST: str = "0.0.0.0"
     PORT: int = 8000
 
+
     # --------------------------------------------------
     # Base de datos
     # --------------------------------------------------
 
     DATABASE_URL: str = Field(...)
 
+
     # --------------------------------------------------
     # IA - Proveedor activo
     # --------------------------------------------------
 
-    LLM_PROVIDER: str = "openai"
+    LLM_PROVIDER: str = "ollama"
+
 
     # --------------------------------------------------
     # OpenAI
@@ -41,6 +44,7 @@ class Settings(BaseSettings):
 
     OPENAI_MODEL: str = "gpt-5.5"
 
+
     # --------------------------------------------------
     # Ollama
     # --------------------------------------------------
@@ -48,6 +52,7 @@ class Settings(BaseSettings):
     OLLAMA_URL: str = "http://localhost:11434"
 
     OLLAMA_MODEL: str = "llama3.2:3b"
+
 
     # --------------------------------------------------
     # Google Gemini
@@ -57,6 +62,7 @@ class Settings(BaseSettings):
 
     GEMINI_MODEL: str = "gemini-2.5-pro"
 
+
     # --------------------------------------------------
     # Anthropic Claude
     # --------------------------------------------------
@@ -65,11 +71,13 @@ class Settings(BaseSettings):
 
     CLAUDE_MODEL: str = "claude-sonnet-4"
 
+
     # --------------------------------------------------
     # Embeddings
     # --------------------------------------------------
 
     EMBEDDING_MODEL: str = "text-embedding-3-large"
+
 
     # --------------------------------------------------
     # Seguridad
@@ -81,15 +89,13 @@ class Settings(BaseSettings):
 
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
 
+
     # --------------------------------------------------
     # Logging
     # --------------------------------------------------
 
     LOG_LEVEL: str = "INFO"
 
-    # --------------------------------------------------
-    # Configuración de Pydantic
-    # --------------------------------------------------
 
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -100,10 +106,6 @@ class Settings(BaseSettings):
 
 @lru_cache
 def get_settings() -> Settings:
-    """
-    Devuelve una única instancia de configuración
-    durante toda la vida de la aplicación.
-    """
     return Settings()
 
 

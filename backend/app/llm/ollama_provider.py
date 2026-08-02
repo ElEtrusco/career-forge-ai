@@ -14,7 +14,7 @@ class OllamaProvider(LLMService):
     ) -> str:
 
         payload = {
-            "model": settings.LLM_MODEL,
+            "model": settings.OLLAMA_MODEL,
             "messages": messages,
             "stream": False,
             "options": {
@@ -24,13 +24,24 @@ class OllamaProvider(LLMService):
             },
         }
 
+        url = f"{settings.OLLAMA_URL}/api/chat"
+
+        print("OLLAMA URL:", url)
+        print("OLLAMA MODEL:", settings.OLLAMA_MODEL)
+        print("OLLAMA PAYLOAD:", payload)
+
         async with httpx.AsyncClient() as client:
 
             response = await client.post(
-                "http://localhost:11434/api/chat",
+                url,
                 json=payload,
                 timeout=120,
             )
+
+            print("OLLAMA STATUS:", response.status_code)
+
+            if response.status_code != 200:
+                print("OLLAMA ERROR:", response.text)
 
             response.raise_for_status()
 

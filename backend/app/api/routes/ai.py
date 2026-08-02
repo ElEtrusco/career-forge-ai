@@ -52,14 +52,26 @@ async def ai_health(
 
     try:
 
+        if settings.LLM_PROVIDER == "ollama":
+            model = settings.OLLAMA_MODEL
+
+        elif settings.LLM_PROVIDER == "openai":
+            model = settings.OPENAI_MODEL
+
+        elif settings.LLM_PROVIDER == "gemini":
+            model = settings.GEMINI_MODEL
+
+        elif settings.LLM_PROVIDER == "claude":
+            model = settings.CLAUDE_MODEL
+
+        else:
+            model = "unknown"
+
+
         return {
             "status": "available",
             "provider": settings.LLM_PROVIDER,
-            "model": (
-                settings.OLLAMA_MODEL
-                if settings.LLM_PROVIDER == "ollama"
-                else settings.OPENAI_MODEL
-            )
+            "model": model
         }
 
     except Exception as e:
