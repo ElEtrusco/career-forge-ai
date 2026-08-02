@@ -32,6 +32,9 @@ class OllamaProvider(LLMService):
 
 
         async with httpx.AsyncClient(timeout=120) as client:
+            print("URL:", self.url)
+            print("MODEL:", self.model)
+            print("PAYLOAD:", payload)
 
             response = await client.post(
                 self.url,
