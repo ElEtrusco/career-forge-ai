@@ -1,30 +1,33 @@
 from abc import ABC, abstractmethod
-from typing import List, TypedDict
+from typing import TypedDict
 
 
 class Message(TypedDict):
     """
-    Standard message format used by all LLM providers.
+    Formato estándar de mensajes para cualquier proveedor LLM.
     """
 
     role: str
+
     content: str
+
 
 
 class LLMService(ABC):
     """
-    Abstract interface implemented by every LLM provider.
+    Interfaz base para proveedores de modelos de lenguaje.
     """
+
 
     @abstractmethod
     async def chat(
         self,
-        messages: List[Message],
+        messages: list[Message],
         temperature: float = 0.3,
         max_tokens: int = 2048,
     ) -> str:
         """
-        Send messages to the language model and return response.
+        Envía mensajes al modelo y devuelve una respuesta.
         """
 
-        raise NotImplementedError
+        pass

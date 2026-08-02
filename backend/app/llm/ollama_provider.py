@@ -66,4 +66,10 @@ class OllamaProvider(LLMService):
             data = response.json()
 
 
+            if "message" not in data:
+                raise RuntimeError(
+                f"Unexpected Ollama response: {data}"
+                )
+
             return data["message"]["content"]
+
