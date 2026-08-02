@@ -1,6 +1,8 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 
+from app.api.dependencies import get_ai_service
 from app.services.ai_service import AIService
+from app.core.config import settings
 
 
 router = APIRouter(
@@ -10,10 +12,11 @@ router = APIRouter(
 
 
 @router.get("/test")
-async def test_ai():
+async def test_ai(
+    service: AIService = Depends(get_ai_service),
+):
 
     try:
-        service = AIService()
 
         response = await service.chat(
             messages=[
@@ -35,6 +38,33 @@ async def test_ai():
     except Exception as e:
 
         print("AI ERROR:", repr(e))
+
+        raise HTTPException(
+            status_code=500,
+            detail=str(e)
+        )
+
+
+@router.get("/health")
+async def ai_health(
+    service: AIService = Depends(get_ai_service),
+):
+
+    try:
+
+        return {
+            "status": "available",
+            "provider": settings.LLM_PROVIDER,
+            "model": (
+                settings.OLLAMA_MODEL
+                if settings.LLM_PROVIDER == "ollama"
+                else settings.OPENAI_MODEL
+            )
+        }
+
+    except Exception as e:
+
+        print("AI HEALTH ERROR:", repr(e))
 
         raise HTTPException(
             status_code=500,

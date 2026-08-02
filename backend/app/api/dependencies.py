@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from app.database.session import get_db
 from app.core.security import decode_access_token
 from app.services.user_service import UserService
+from app.services.ai_service import AIService
 from app.models.user import User
 
 
@@ -59,3 +60,11 @@ def require_admin(
         )
 
     return current_user
+
+
+def get_ai_service() -> AIService:
+    """
+    Dependency provider for AI services.
+    """
+
+    return AIService()
