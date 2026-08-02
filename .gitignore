@@ -8,6 +8,8 @@ __pycache__/
 .env
 .venv
 venv/
+*.__pycache__/
+*.py[cod]
 
 # Node
 
@@ -47,3 +49,7 @@ htmlcov/
 # Environment files
 **/.env
 *.env
+
+# Uploads
+uploads/
+backend/uploads/
