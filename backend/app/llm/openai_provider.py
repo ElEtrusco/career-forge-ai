@@ -25,7 +25,6 @@ class OpenAIProvider(LLMService):
         response = await self.client.responses.create(
             model=self.model,
             input=messages,
-            temperature=temperature,
             max_output_tokens=max_tokens,
         )
 
