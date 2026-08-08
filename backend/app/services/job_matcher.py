@@ -27,7 +27,7 @@ class JobMatcher:
                 "languages": [],
             }
 
-        return self.skill_extractor.extract_all(text)
+        return self.skill_extractor.extract_all(text, expand_concepts=False)
 
     def match(self, cv_skills: Dict, job_text: str) -> Dict:
         """
