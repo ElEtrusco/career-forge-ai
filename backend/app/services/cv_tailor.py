@@ -7,8 +7,7 @@ from app.services.ats_scorer_v2 import ATSScorerV2
 
 class CVTailor:
 
-
-def __init__(self):
+def __init__(self) -> None:
     self.ai = AIService()
     self.skill_extractor = SkillExtractor()
     self.job_matcher = JobMatcher()
@@ -18,8 +17,20 @@ async def tailor(
     self,
     cv_text: str,
     job_text: str,
-    match_result: Dict[str, Any] | None = None,
 ) -> Dict[str, Any]:
+    """
+    Analiza el CV original, lo adapta a una oferta mediante Ollama
+    y vuelve a analizar el resultado para medir la mejora.
+
+    Importante:
+    - No inventa experiencia.
+    - No inventa tecnologías.
+    - No inventa estudios.
+    - No inventa certificaciones.
+    - No inventa idiomas.
+    - La adaptación se basa únicamente en información presente
+      en el CV original.
+    """
 
     if not cv_text or not cv_text.strip():
         raise ValueError("CV text is required")
@@ -27,12 +38,13 @@ async def tailor(
     if not job_text or not job_text.strip():
         raise ValueError("Job description is required")
 
-    # --------------------------------------------------
+    # ==========================================================
     # 1. ANALIZAR CV ORIGINAL
-    # --------------------------------------------------
+    # ==========================================================
 
     original_skills = self.skill_extractor.extract_all(
-        cv_text
+        cv_text,
+        expand_concepts=False,
     )
 
     original_ats = self.ats_scorer.calculate(
@@ -40,16 +52,11 @@ async def tailor(
         cv_text,
     )
 
-    # Si el endpoint ya calculó el match, reutilizarlo.
-    # Esto evita hacer el mismo análisis dos veces.
-    if match_result is not None:
-        original_match = match_result
-    else:
-        original_match = self.job_matcher.match(
-            cv_skills=original_skills,
-            job_text=job_text,
-            cv_text=cv_text,
-        )
+    original_match = self.job_matcher.match(
+        cv_skills=original_skills,
+        job_text=job_text,
+        cv_text=cv_text,
+    )
 
     missing_hard = original_match.get(
         "missing_hard_skills",
@@ -66,64 +73,61 @@ async def tailor(
         [],
     )
 
-    missing_keywords = original_match.get(
-        "missing_keywords",
-        [],
-    )
-
-    missing_required_keywords = original_match.get(
-        "missing_required_keywords",
-        [],
-    )
-
-    # --------------------------------------------------
-    # 2. PEDIR A OLLAMA QUE ADAPTE EL CV
-    # --------------------------------------------------
+    # ==========================================================
+    # 2. CONSTRUIR PROMPT PARA OLLAMA
+    # ==========================================================
 
     prompt = f"""
-```
 
-Eres un experto en CV, ATS y selección de personal.
+Eres un experto en selección de personal, CV y sistemas ATS.
 
-Tu tarea es mejorar el CV del candidato específicamente para
-la oferta de empleo proporcionada.
+Tu tarea es adaptar el CV de un candidato a una oferta de empleo
+concreta.
 
 OBJETIVO:
 
-Aumentar la relevancia del CV para esta oferta utilizando
-ÚNICAMENTE información verdadera y demostrable del CV original.
+Mejorar las posibilidades del candidato frente a esta oferta,
+pero manteniendo estrictamente la información verdadera del CV.
 
-REGLAS OBLIGATORIAS:
+REGLAS ABSOLUTAS:
 
-* No inventes experiencia.
-* No inventes empresas.
-* No inventes puestos.
-* No inventes estudios.
-* No inventes certificaciones.
-* No inventes idiomas.
-* No inventes tecnologías.
-* No añadas años de experiencia que no aparezcan en el CV.
-* No añadas porcentajes inexistentes.
-* No añadas métricas inexistentes.
-* No añadas responsabilidades que el candidato no haya realizado.
-* No afirmes que el candidato domina una tecnología que no aparece
-  en el CV original.
-* No conviertas una palabra de la oferta en una habilidad del
-  candidato si no existe evidencia en el CV.
-* Puedes mejorar la redacción.
-* Puedes reorganizar la información.
-* Puedes eliminar redundancias.
-* Puedes mejorar el perfil profesional.
-* Puedes mejorar la descripción de experiencias reales.
-* Puedes destacar tecnologías que ya aparecen en el CV.
-* Puedes destacar competencias que ya aparecen en el CV.
-* Puedes utilizar palabras clave de la oferta cuando estén
-  respaldadas por información existente en el CV.
-* Mantén la información verdadera del candidato.
-* El resultado debe ser compatible con sistemas ATS.
-* Utiliza una estructura clara y fácil de leer.
-* Conserva el idioma principal del CV.
-* No escribas explicaciones fuera del CV.
+1. NO inventes experiencia profesional.
+2. NO inventes empresas.
+3. NO inventes puestos de trabajo.
+4. NO inventes estudios.
+5. NO inventes certificaciones.
+6. NO inventes idiomas.
+7. NO inventes tecnologías.
+8. NO inventes herramientas.
+9. NO inventes proyectos.
+10. NO inventes años de experiencia.
+11. NO inventes porcentajes.
+12. NO inventes métricas.
+13. NO conviertas conocimientos básicos en experiencia profesional.
+14. NO afirmes que el candidato ha trabajado con una tecnología
+    si el CV original no lo demuestra.
+15. NO añadas una habilidad únicamente porque aparece en la oferta.
+16. Puedes reorganizar información existente.
+17. Puedes mejorar la redacción.
+18. Puedes hacer más profesional el perfil.
+19. Puedes utilizar terminología de la oferta cuando esté respaldada
+    por información real del CV.
+20. Puedes destacar habilidades que ya aparecen en el CV.
+21. Puedes mejorar los títulos de las secciones.
+22. Puedes convertir responsabilidades existentes en frases
+    profesionales orientadas a resultados, pero SIN inventar resultados.
+23. Mantén el idioma principal del CV.
+24. El resultado debe ser limpio y compatible con ATS.
+25. No utilices tablas, columnas, gráficos, iconos ni elementos
+    que puedan dificultar la lectura ATS.
+
+IMPORTANTE:
+
+Las habilidades que faltan NO deben incorporarse artificialmente
+al CV.
+
+Si la oferta solicita una tecnología que el candidato no tiene,
+debe permanecer ausente.
 
 OFERTA DE EMPLEO:
 
@@ -133,60 +137,61 @@ SKILLS DETECTADAS EN EL CV:
 
 {original_skills}
 
-SKILLS REQUERIDAS POR LA OFERTA QUE NO ESTÁN DETECTADAS:
+SKILLS REQUERIDAS POR LA OFERTA QUE NO ESTÁN EN EL CV:
 
-Hard skills:
+HARD SKILLS:
 {missing_hard}
 
-Soft skills:
+SOFT SKILLS:
 {missing_soft}
 
-Idiomas:
+IDIOMAS:
 {missing_languages}
-
-KEYWORDS DE LA OFERTA QUE NO APARECEN EN EL CV:
-
-{missing_keywords}
-
-KEYWORDS OBLIGATORIAS QUE NO APARECEN EN EL CV:
-
-{missing_required_keywords}
-
-IMPORTANTE:
-
-Las keywords ausentes NO deben añadirse al CV como si el candidato
-las conociera.
-
-Solo puedes incorporar una keyword si existe evidencia equivalente
-en el CV original.
 
 CV ORIGINAL:
 
 {cv_text}
 
-INSTRUCCIONES DE SALIDA:
+TAREA:
 
-Devuelve únicamente el CV mejorado.
+Devuelve una versión mejorada del CV adaptada específicamente
+a esta oferta.
 
-No incluyas explicaciones.
-No incluyas comentarios.
+Prioriza:
+
+* Perfil profesional
+* Experiencia profesional
+* Competencias técnicas
+* Proyectos
+* Formación
+* Palabras clave ATS respaldadas por el CV
+
+No inventes información para cubrir carencias.
+
+Devuelve ÚNICAMENTE el CV final.
+
+No escribas explicaciones.
+No escribas comentarios.
 No escribas "CV mejorado".
-No escribas análisis.
-No escribas recomendaciones.
+No escribas introducciones.
+No escribas conclusiones.
 
-Devuelve directamente el contenido final del CV.
+Empieza directamente con el contenido del CV.
 """
 
-```
+    # ==========================================================
+    # 3. OLLAMA / IA
+    # ==========================================================
+
     improved_cv = await self.ai.chat(
         messages=[
             {
                 "role": "system",
                 "content": (
                     "You are an expert CV and ATS optimization "
-                    "assistant. Never invent candidate information. "
-                    "Only rewrite and reorganize information supported "
-                    "by the original CV."
+                    "assistant. You must never invent candidate "
+                    "information. Only rewrite and reorganize "
+                    "information supported by the original CV."
                 ),
             },
             {
@@ -195,17 +200,23 @@ Devuelve directamente el contenido final del CV.
             },
         ],
         temperature=0.2,
-        max_tokens=1800,
+        max_tokens=2500,
     )
+
+    if not improved_cv:
+        raise ValueError(
+            "AI returned an empty CV"
+        )
 
     improved_cv = improved_cv.strip()
 
-    # --------------------------------------------------
-    # 3. ANALIZAR CV MEJORADO
-    # --------------------------------------------------
+    # ==========================================================
+    # 4. ANALIZAR CV MEJORADO
+    # ==========================================================
 
     improved_skills = self.skill_extractor.extract_all(
-        improved_cv
+        improved_cv,
+        expand_concepts=False,
     )
 
     improved_ats = self.ats_scorer.calculate(
@@ -213,19 +224,15 @@ Devuelve directamente el contenido final del CV.
         improved_cv,
     )
 
-    # Importante:
-    # pasar el texto completo del CV mejorado permite que
-    # JobKeywordAnalyzer compare las keywords de la oferta
-    # contra el CV real.
     improved_match = self.job_matcher.match(
         cv_skills=improved_skills,
         job_text=job_text,
         cv_text=improved_cv,
     )
 
-    # --------------------------------------------------
-    # 4. CALCULAR MEJORAS
-    # --------------------------------------------------
+    # ==========================================================
+    # 5. CALCULAR MEJORAS
+    # ==========================================================
 
     ats_improvement = (
         improved_ats
@@ -244,9 +251,9 @@ Devuelve directamente el contenido final del CV.
         2,
     )
 
-    # --------------------------------------------------
-    # 5. RESULTADO COMPLETO
-    # --------------------------------------------------
+    # ==========================================================
+    # 6. RESULTADO
+    # ==========================================================
 
     return {
         "original_cv": cv_text,
@@ -289,25 +296,4 @@ Devuelve directamente el contenido final del CV.
                 [],
             ),
         },
-
-        "missing_keywords_before": missing_keywords,
-
-        "missing_required_keywords_before": (
-            missing_required_keywords
-        ),
-
-        "missing_keywords_after": (
-            improved_match.get(
-                "missing_keywords",
-                [],
-            )
-        ),
-
-        "missing_required_keywords_after": (
-            improved_match.get(
-                "missing_required_keywords",
-                [],
-            )
-        ),
     }
-
