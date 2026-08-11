@@ -200,7 +200,7 @@ class CVTailor:
                 },
             ],
             temperature=0.2,
-            max_tokens=2500,
+            max_tokens=900,
         )
 
         if not improved_cv:
