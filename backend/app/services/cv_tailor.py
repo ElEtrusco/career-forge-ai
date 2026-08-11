@@ -109,7 +109,6 @@ class CVTailor:
         # ==========================================================
 
         prompt = f"""
-    ```
 
     Adapta el siguiente CV a la oferta de empleo.
 
@@ -215,7 +214,6 @@ class CVTailor:
     Empieza directamente con el contenido del CV.
     """
 
-    ```
         # ==========================================================
         # 3. OPTIMIZAR CON IA
         # ==========================================================
