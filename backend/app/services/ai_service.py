@@ -5,7 +5,6 @@ class AIService:
     """
     Servicio principal de IA.
 
-    ```
     Esta capa abstrae el proveedor LLM.
     Los servicios de aplicación no deben saber si usamos
     Ollama, OpenAI u otro proveedor.
@@ -29,4 +28,3 @@ class AIService:
             temperature=temperature,
             max_tokens=max_tokens,
         )
-    ```
