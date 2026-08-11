@@ -1,4 +1,4 @@
-from future import annotations
+from __future__ import annotations
 
 from typing import Any, Dict, List
 
@@ -16,7 +16,6 @@ class JobMatcher:
 """
 Compares a candidate CV against a job offer.
 
-```
 The matcher combines three complementary signals:
 
 1. SkillExtractor
@@ -1419,7 +1418,7 @@ def _normalize_set(
             )
 
     return result
-```
+
 
 # ============================================================================
 
